@@ -1,0 +1,55 @@
+name: Sync Acid Packages to APT Repo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 13 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  build-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Download latest .deb packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download --repo 0urr-acid/caddy-acid --pattern "*.deb" --dir . --clobber
+
+      - name: Setup Tools and GPG Key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y dpkg-dev apt-utils
+          
+          printf "%s\n" "$GPG_PRIVATE_KEY" > /tmp/private.asc
+          gpg --batch --import /tmp/private.asc
+          rm -f /tmp/private.asc
+          
+          gpg --armor --export > KEY.gpg
+
+      - name: Generate APT Indices
+        run: |
+          # Generate Packages and Packages.gz
+          dpkg-scanpackages . /dev/null > Packages
+          gzip -9c Packages > Packages.gz
+
+          # Generate Release
+          apt-ftparchive release . > Release
+          
+          gpg --batch --yes --clearsign -o InRelease Release
+          gpg --batch --yes -abs -o Release.gpg Release
+
+      - name: Commit and Push to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update APT repository" && git push)
