@@ -1,13 +1,13 @@
 Package: caddy-acid
-Version: 2.11.4~2026-09-24
+Version: 2.11.4~2026-09-25
 Architecture: amd64
 Maintainer: 0urr-acid
 Depends: bash-completion, passwd
 Filename: ./caddy-acid-latest.deb
-Size: 15597866
-MD5sum: 1f9bb079941c56283c2345ccaf50a336
-SHA1: b828205a63615608de0b6cb9077f54fad7009fb9
-SHA256: 7bf676b09cacf23acb3f6adeeebe45be309bb40a5136f77fae121a393cf4b1ea
+Size: 15597330
+MD5sum: 9cde4393c1d09ecc00822263633500d6
+SHA1: e195b52d6fbb36f669b7c8e182e6a73c29a5f733
+SHA256: 1d3e2f9d136d581790ca310f4e492a36ae94020c5976dfea4fcbd8772230354d
 Section: net
 Priority: optional
 Description: Caddy build
